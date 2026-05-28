@@ -1,5 +1,17 @@
 # react-native-nitro-healthkit 🏥
 
+[![npm version](https://img.shields.io/npm/v/react-native-nitro-healthkit?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/react-native-nitro-healthkit)
+[![CI](https://img.shields.io/github/actions/workflow/status/N0ku/react-native-nitro-healthkit/ci.yml?style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/N0ku/react-native-nitro-healthkit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](#-contributing)
+
+![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Swift](https://img.shields.io/badge/Swift-FA7343?style=for-the-badge&logo=swift&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
+![iOS](https://img.shields.io/badge/iOS-000000?style=for-the-badge&logo=apple&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+
 A high-performance React Native library exposing **a single TypeScript API on top of Apple HealthKit (iOS) and Android Health Connect (Android)** via **Nitro Modules**. Built with Swift + Kotlin and powered by modern C++ interop for native performance.
 
 > **2.2.0 — Android support added.** Health Connect is the canonical Android health data API; everything that writes into it (Samsung Health, Google Fit, Fitbit since 2024, Withings, Oura, MyFitnessPal, …) is now readable through this module on Android. See the [Android support matrix](#-android-support-matrix) below.

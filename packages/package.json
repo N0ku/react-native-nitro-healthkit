@@ -1,7 +1,7 @@
 {
   "name": "react-native-nitro-healthkit",
   "version": "5.1.0",
-  "description": "React Native Nitro module for iOS HealthKit + Android Health Connect",
+  "description": "React Native Nitro module for reading and writing health data — one TypeScript API over Apple HealthKit (iOS) and Android Health Connect.",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "types": "lib/index.d.ts",
