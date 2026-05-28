@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Health Connect permission declarations.
+        The host app's manifest is expected to declare the same `<uses-permission>` set
+        (kept there for the Health Connect rationale intent filter); we list them here
+        too so the library can be consumed standalone (e.g. by the example app).
+    -->
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
+  <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+  <uses-permission android:name="android.permission.health.WRITE_DISTANCE" />
+  <uses-permission android:name="android.permission.health.READ_FLOORS_CLIMBED" />
+  <uses-permission android:name="android.permission.health.WRITE_FLOORS_CLIMBED" />
+  <uses-permission android:name="android.permission.health.READ_STEPS" />
+  <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
+  <uses-permission android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED" />
+  <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+  <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
+  <uses-permission android:name="android.permission.health.WRITE_HEART_RATE" />
+  <uses-permission android:name="android.permission.health.READ_SLEEP" />
+  <uses-permission android:name="android.permission.health.WRITE_SLEEP" />
+  <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+  <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+  <uses-permission android:name="android.permission.health.READ_WEIGHT" />
+  <uses-permission android:name="android.permission.health.READ_BODY_FAT" />
+  <uses-permission android:name="android.permission.health.READ_LEAN_BODY_MASS" />
+  <uses-permission android:name="android.permission.health.READ_HEIGHT" />
+  <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE" />
+  <uses-permission android:name="android.permission.health.READ_OXYGEN_SATURATION" />
+  <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY" />
+  <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE" />
+
+    <!--
+        Queries declaration: lets us discover the Health Connect provider on Android < 14.
+        On Android 14+ Health Connect ships as part of the platform.
+    -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+        <intent>
+            <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+        </intent>
+    </queries>
+
+</manifest>

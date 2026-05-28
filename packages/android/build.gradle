@@ -1,0 +1,140 @@
+buildscript {
+  ext.safeExtGet = { prop, fallback ->
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+  }
+
+  repositories {
+    google()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:8.6.0"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${safeExtGet("kotlinVersion", "2.0.21")}"
+  }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+// Pull in the Nitrogen-generated Kotlin sources so the abstract spec is on the
+// compile classpath.
+apply from: "../nitrogen/generated/android/NitroPackages+autolinking.gradle"
+
+def reactNativeArchitectures() {
+  def value = rootProject.getProperties().get("reactNativeArchitectures")
+  return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
+}
+
+android {
+  namespace = "io.github.n0ku.nitrohealthkit"
+  compileSdk = safeExtGet("compileSdkVersion", 35)
+
+  defaultConfig {
+    minSdk = safeExtGet("minSdkVersion", 26)
+    targetSdk = safeExtGet("targetSdkVersion", 35)
+
+    consumerProguardFiles "consumer-rules.pro"
+
+    externalNativeBuild {
+      cmake {
+        cppFlags "-O2", "-frtti", "-fexceptions", "-Wall", "-fstack-protector-all"
+        arguments "-DANDROID_STL=c++_shared"
+      }
+    }
+
+    // Limit the native build to the ABIs React Native is producing for the
+    // host app. The host invokes gradle with `-PreactNativeArchitectures=...`;
+    // without this, our .so is built for x86/x86_64 too and the link step
+    // fails because react-native-nitro-modules core wasn't built for those ABIs.
+    ndk {
+      abiFilters reactNativeArchitectures()
+    }
+  }
+
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
+      version "3.22.1"
+    }
+  }
+
+  buildFeatures {
+    buildConfig = true
+    prefab = true
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = "17"
+  }
+
+  sourceSets {
+    main {
+      java.srcDirs += ["src/main/kotlin"]
+    }
+    test {
+      java.srcDirs += ["src/test/kotlin"]
+    }
+  }
+
+  packagingOptions {
+    resources {
+      excludes += ["META-INF/AL2.0", "META-INF/LGPL2.1"]
+    }
+  }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+      returnDefaultValues = true
+    }
+  }
+}
+
+repositories {
+  google()
+  mavenCentral()
+}
+
+dependencies {
+  // React Native (provided by the host app)
+  implementation "com.facebook.react:react-android"
+
+  // Nitro core — provided by the consumer app via react-native-nitro-modules.
+  // The Nitrogen-generated stubs reference com.margelo.nitro.core.*, which lives
+  // in that project. It is not published to Maven; React Native autolinking
+  // exposes it as a local Gradle project, so we reference it that way.
+  implementation project(":react-native-nitro-modules")
+
+  // Kotlin coroutines for the async surface of the module.
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
+
+  // Health Connect (Jetpack) — the canonical Android health data API.
+  // Aggregates Samsung Health, Google Fit, Fitbit (via the HC bridge), Withings, etc.
+  // Pinned to 1.1.0-alpha12: the latest version that still compiles against
+  // compileSdk 35 (the host app's level). 1.1.0-rc02+ and 1.1.0 GA require 36.
+  implementation "androidx.health.connect:connect-client:1.1.0-alpha12"
+
+  // WorkManager for periodic background sync.
+  implementation "androidx.work:work-runtime-ktx:2.9.1"
+
+  // Encrypted shared preferences for storing the JWT used by the background worker.
+  implementation "androidx.security:security-crypto:1.1.0-alpha06"
+
+  // OkHttp for the background worker's HTTP POST to the backend.
+  implementation "com.squareup.okhttp3:okhttp:4.12.0"
+
+  // Test stack
+  testImplementation "junit:junit:4.13.2"
+  testImplementation "io.mockk:mockk:1.13.13"
+  testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1"
+  testImplementation "androidx.work:work-testing:2.9.1"
+  testImplementation "androidx.test:core:1.6.1"
+  testImplementation "org.robolectric:robolectric:4.13"
+}

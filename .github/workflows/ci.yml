@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ts:
+    name: TypeScript (typecheck + jest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: packages/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Regenerate Nitrogen artefacts
+        # Catches drift between the .nitro.ts spec and the generated stubs.
+        run: npm run specs
+
+      - name: Unit tests
+        run: npm test -- --ci
+
+  android:
+    name: Android (Kotlin unit tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: packages/package-lock.json
+
+      - name: Install package dependencies
+        working-directory: packages
+        run: npm ci
+
+      - name: Regenerate Nitrogen artefacts
+        working-directory: packages
+        run: npm run specs
+
+      # We need the example app's gradle wrapper because it depends on react-native
+      # being on the classpath (provided by the host app). The Makefile target wraps
+      # the same invocation.
+      - name: Install example app dependencies
+        working-directory: example/my-app
+        run: npm ci
+
+      - name: Gradle :react-native-nitro-healthkit:test
+        working-directory: example/my-app/android
+        run: ./gradlew :react-native-nitro-healthkit:test --no-daemon
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-reports
+          path: |
+            example/my-app/android/**/build/reports/tests/
+            example/my-app/android/**/build/test-results/
+          retention-days: 14
