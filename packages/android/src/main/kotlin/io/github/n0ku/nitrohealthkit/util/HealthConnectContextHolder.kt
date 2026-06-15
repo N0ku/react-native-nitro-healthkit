@@ -10,7 +10,7 @@ import android.content.Context
  *
  * The host React Native app is responsible for calling
  * [HealthConnectContextHolder.attach] once at startup with `context.applicationContext`.
- * This is wired automatically when the host registers the [com.margelo.nitro.packages.NitroPackagesPackage].
+ * This is wired automatically when the host registers the [com.margelo.nitro.healthkit.NitroHealthkitPackage].
  *
  * Holding the application context is safe — it lives as long as the process.
  */
@@ -27,7 +27,7 @@ object HealthConnectContextHolder {
     fun require(): Context =
         appContext ?: error(
             "HealthConnectContextHolder has not been initialised. " +
-                "Ensure NitroPackagesPackage is registered in the host app's getPackages().",
+                "Ensure NitroHealthkitPackage is registered in the host app's getPackages().",
         )
 
     fun peek(): Context? = appContext

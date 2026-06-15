@@ -386,10 +386,9 @@ export interface HealthKit extends HybridObject<{ ios: 'swift', android: 'kotlin
     cacheTTL?: number
   ): Promise<HealthData>
 
-  // getRealtimeData was removed in 2.x — its `Promise<Record<string, number>>`
-  // return type was unsupported by fbjni on Android (Map<JString, double> is not
-  // instantiable). The host app never consumed it; callers should use
-  // getAggregatedQuantity per metric instead.
+  // getRealtimeData is intentionally not exposed — its `Promise<Record<string, number>>`
+  // return type is unsupported by fbjni on Android (Map<JString, double> is not
+  // instantiable). Callers should use getAggregatedQuantity per metric instead.
 
   /**
    * Clear the cache.

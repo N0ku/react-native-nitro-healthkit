@@ -5,7 +5,8 @@ import os.log
 public class HealthKitModule: HybridHealthKitSpec, @unchecked Sendable {
   private let healthStore = HKHealthStore()
   private let cacheManager = CacheManager.shared
-  
+  private lazy var observerManager = HealthKitObserverManager(healthStore: healthStore)
+
   // Default cache configuration
   private let defaultCacheTTL: TimeInterval = 60 // 1 minute
   
@@ -87,7 +88,9 @@ public class HealthKitModule: HybridHealthKitSpec, @unchecked Sendable {
       NSLog("🔍 [HealthKit] getSteps - Start: %@, End: %@", formatter.string(from: startDate), formatter.string(from: endDate))
       os_log("🔍 [HealthKit] getSteps - Start: %{public}@, End: %{public}@", log: .default, type: .info, formatter.string(from: startDate), formatter.string(from: endDate))
       
-      let stepType: HKQuantityType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+      guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
+        throw NSError(domain: "HealthKit", code: 2, userInfo: [NSLocalizedDescriptionKey: "stepCount type unavailable"])
+      }
       // Use .strictEndDate to include all samples in the period
       let predicate: NSPredicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
       
@@ -119,7 +122,9 @@ public class HealthKitModule: HybridHealthKitSpec, @unchecked Sendable {
       NSLog("🔍 [HealthKit] getHeartRate - Start: %@, End: %@", formatter.string(from: startDate), formatter.string(from: endDate))
       os_log("🔍 [HealthKit] getHeartRate - Start: %{public}@, End: %{public}@", log: .default, type: .info, formatter.string(from: startDate), formatter.string(from: endDate))
       
-      let heartRateType: HKQuantityType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+      guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+        throw NSError(domain: "HealthKit", code: 2, userInfo: [NSLocalizedDescriptionKey: "heartRate type unavailable"])
+      }
       // Use [] to include all samples in the period
       let predicate: NSPredicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
       
@@ -481,8 +486,8 @@ public class HealthKitModule: HybridHealthKitSpec, @unchecked Sendable {
     }
   }
   
-  // getRealtimeData removed in 2.x — Map<JString, double> was unsupported by
-  // fbjni on Android. The TS hook `useHealthKitRealtime` now fans out via
+  // getRealtimeData is intentionally not exposed — Map<JString, double> is unsupported
+  // by fbjni on Android. The TS hook `useHealthKitRealtime` fans out via
   // getAggregatedQuantity instead, keeping the same observable behaviour.
 
   // MARK: - Workout Data Retrieval
@@ -752,49 +757,64 @@ public class HealthKitModule: HybridHealthKitSpec, @unchecked Sendable {
     }
   }
 
-  // MARK: - Observers / Background sync (no-op stubs on iOS — full parity tracked separately)
+  // MARK: - Observers (HKObserverQuery + background delivery)
 
   public func observeQuantityChanges(type: String, callback: @escaping (String) -> Void) throws -> Promise<String> {
-    return Promise.async {
-      NSLog("⚠️ [HealthKit] observeQuantityChanges is not yet implemented on iOS — returning placeholder subscription id")
-      return ""
+    return Promise.async { [weak self] in
+      guard let self = self else { return "" }
+      return try self.observerManager.observeQuantity(type: type, callback: callback)
     }
   }
 
   public func observeCategoryChanges(type: String, callback: @escaping (String) -> Void) throws -> Promise<String> {
-    return Promise.async {
-      NSLog("⚠️ [HealthKit] observeCategoryChanges is not yet implemented on iOS — returning placeholder subscription id")
-      return ""
+    return Promise.async { [weak self] in
+      guard let self = self else { return "" }
+      return try self.observerManager.observeCategory(type: type, callback: callback)
     }
   }
 
   public func removeObserver(subscriptionId: String) throws -> Promise<Void> {
-    return Promise.async {
-      NSLog("⚠️ [HealthKit] removeObserver is not yet implemented on iOS")
+    return Promise.async { [weak self] in
+      self?.observerManager.removeObserver(id: subscriptionId)
     }
   }
 
   public func removeAllObservers() throws -> Promise<Void> {
-    return Promise.async {
-      NSLog("⚠️ [HealthKit] removeAllObservers is not yet implemented on iOS")
+    return Promise.async { [weak self] in
+      self?.observerManager.removeAll()
     }
   }
 
+  // MARK: - Background sync (BGTaskScheduler + Keychain)
+
   public func registerBackgroundSync(config: BackgroundSyncConfig) throws -> Promise<Void> {
+    // Extract primitive fields up front so the C++-backed struct is not captured
+    // by the async closure.
+    let apiBaseUrl = config.apiBaseUrl
+    let jwtToken = config.jwtToken
+    let intervalMinutes = config.intervalMinutes
+    let types = config.types
+    let syncPath = config.syncPath
     return Promise.async {
-      NSLog("⚠️ [HealthKit] registerBackgroundSync is not yet implemented on iOS — call from JS will no-op")
+      HealthKitBackgroundSync.shared.register(
+        apiBaseUrl: apiBaseUrl,
+        jwtToken: jwtToken,
+        intervalMinutes: intervalMinutes,
+        types: types,
+        syncPath: syncPath
+      )
     }
   }
 
   public func unregisterBackgroundSync() throws -> Promise<Void> {
     return Promise.async {
-      NSLog("⚠️ [HealthKit] unregisterBackgroundSync is not yet implemented on iOS")
+      HealthKitBackgroundSync.shared.unregister()
     }
   }
 
   public func isBackgroundSyncRegistered() throws -> Promise<Bool> {
     return Promise.async {
-      return false
+      return HealthKitBackgroundSync.shared.isRegistered()
     }
   }
 

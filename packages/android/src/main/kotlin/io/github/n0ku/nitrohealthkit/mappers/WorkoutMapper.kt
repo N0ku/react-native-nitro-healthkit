@@ -1,7 +1,7 @@
 package io.github.n0ku.nitrohealthkit.mappers
 
 import androidx.health.connect.client.records.ExerciseSessionRecord
-import com.margelo.nitro.packages.WorkoutDataPoint
+import com.margelo.nitro.healthkit.WorkoutDataPoint
 import java.time.Duration
 
 /**

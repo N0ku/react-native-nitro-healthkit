@@ -25,7 +25,7 @@ namespace margelo::nitro::healthkit {
    */
   struct JQuantityDataPoint final: public jni::JavaClass<JQuantityDataPoint> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/packages/QuantityDataPoint;";
+    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/healthkit/QuantityDataPoint;";
 
   public:
     /**

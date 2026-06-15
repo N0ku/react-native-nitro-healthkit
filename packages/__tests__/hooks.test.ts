@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { HealthKitQuantityType, HealthKitCategoryType, TimeRange } from '../src/specs/Example.nitro';
-import type { HealthKit } from '../src/specs/Example.nitro';
+import { HealthKitQuantityType, HealthKitCategoryType, TimeRange } from '../src/specs/HealthKit.nitro';
+import type { HealthKit } from '../src/specs/HealthKit.nitro';
 
 // Mock React hooks
 const mockSetState = jest.fn();

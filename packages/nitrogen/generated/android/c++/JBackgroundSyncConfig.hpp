@@ -22,7 +22,7 @@ namespace margelo::nitro::healthkit {
    */
   struct JBackgroundSyncConfig final: public jni::JavaClass<JBackgroundSyncConfig> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/packages/BackgroundSyncConfig;";
+    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/healthkit/BackgroundSyncConfig;";
 
   public:
     /**

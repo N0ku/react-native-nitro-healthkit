@@ -28,12 +28,12 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import kotlin.reflect.KClass
 import com.margelo.nitro.core.Promise
-import com.margelo.nitro.packages.BackgroundSyncConfig
-import com.margelo.nitro.packages.CategoryDataPoint
-import com.margelo.nitro.packages.HealthData
-import com.margelo.nitro.packages.HybridHealthKitSpec
-import com.margelo.nitro.packages.QuantityDataPoint
-import com.margelo.nitro.packages.WorkoutDataPoint
+import com.margelo.nitro.healthkit.BackgroundSyncConfig
+import com.margelo.nitro.healthkit.CategoryDataPoint
+import com.margelo.nitro.healthkit.HealthData
+import com.margelo.nitro.healthkit.HybridHealthKitSpec
+import com.margelo.nitro.healthkit.QuantityDataPoint
+import com.margelo.nitro.healthkit.WorkoutDataPoint
 import io.github.n0ku.nitrohealthkit.auth.SecureCredentialsStore
 import io.github.n0ku.nitrohealthkit.cache.CacheManager
 import io.github.n0ku.nitrohealthkit.mappers.CategoryMapper
@@ -626,8 +626,8 @@ class HealthKitModule : HybridHealthKitSpec() {
         )
     }
 
-    // getRealtimeData removed in 2.x — Map<String, Double> is not supported by
-    // fbjni on Android. Callers should fan out via getAggregatedQuantity.
+    // getRealtimeData is intentionally not exposed — Map<String, Double> is not supported
+    // by fbjni on Android. Callers should fan out via getAggregatedQuantity.
 
     // endregion
 

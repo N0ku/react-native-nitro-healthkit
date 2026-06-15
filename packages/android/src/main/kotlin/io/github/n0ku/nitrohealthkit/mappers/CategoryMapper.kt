@@ -10,7 +10,7 @@ import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.metadata.Metadata
-import com.margelo.nitro.packages.CategoryDataPoint
+import com.margelo.nitro.healthkit.CategoryDataPoint
 import java.time.Instant
 import java.time.ZoneOffset
 import kotlin.reflect.KClass

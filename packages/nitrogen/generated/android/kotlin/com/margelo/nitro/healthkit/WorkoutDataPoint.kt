@@ -5,7 +5,7 @@
 /// Copyright © 2026 Marc Rousavy @ Margelo
 ///
 
-package com.margelo.nitro.packages
+package com.margelo.nitro.healthkit
 
 import androidx.annotation.Keep
 import com.facebook.proguard.annotations.DoNotStrip

@@ -42,13 +42,13 @@ import androidx.health.connect.client.units.Pressure
 import androidx.health.connect.client.units.Temperature
 import androidx.health.connect.client.units.Velocity
 import androidx.health.connect.client.units.Volume
-import com.margelo.nitro.packages.QuantityDataPoint
+import com.margelo.nitro.healthkit.QuantityDataPoint
 import java.time.Instant
 import java.time.ZoneOffset
 import kotlin.reflect.KClass
 
 /**
- * Maps the iOS-flavoured [com.margelo.nitro.packages.HybridHealthKitSpec] string identifiers
+ * Maps the iOS-flavoured [com.margelo.nitro.healthkit.HybridHealthKitSpec] string identifiers
  * (e.g. `HKQuantityTypeIdentifierStepCount`) onto Android Health Connect [Record] types.
  *
  * The contract maintained with the JS side is intentionally loose:
@@ -466,7 +466,7 @@ object QuantityMapper {
     }
 
     // Subset of the HKQuantityTypeIdentifier* constants we actually exercise. They line up
-    // with the enum values in `src/specs/Example.nitro.ts` (HealthKitQuantityType).
+    // with the enum values in `src/specs/HealthKit.nitro.ts` (HealthKitQuantityType).
     const val QT_STEPS = "HKQuantityTypeIdentifierStepCount"
     const val QT_HEART_RATE = "HKQuantityTypeIdentifierHeartRate"
     const val QT_RESTING_HEART_RATE = "HKQuantityTypeIdentifierRestingHeartRate"

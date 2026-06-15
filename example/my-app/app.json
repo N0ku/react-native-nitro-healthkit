@@ -9,13 +9,14 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.example.nitrohealthkit",
+      "bundleIdentifier": "io.github.n0ku.nitrohealthkit.example",
       "infoPlist": {
         "NSHealthShareUsageDescription": "We need access to your health data to track your activity",
         "NSHealthUpdateUsageDescription": "We need access to your health data to track your activity"
       }
     },
     "android": {
+      "package": "io.github.n0ku.nitrohealthkit.example",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE"
       },

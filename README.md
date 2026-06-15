@@ -14,7 +14,7 @@
 
 A high-performance React Native library exposing **a single TypeScript API on top of Apple HealthKit (iOS) and Android Health Connect (Android)** via **Nitro Modules**. Built with Swift + Kotlin and powered by modern C++ interop for native performance.
 
-> **2.2.0 — Android support added.** Health Connect is the canonical Android health data API; everything that writes into it (Samsung Health, Google Fit, Fitbit since 2024, Withings, Oura, MyFitnessPal, …) is now readable through this module on Android. See the [Android support matrix](#-android-support-matrix) below.
+> **Cross-platform.** Health Connect is the canonical Android health data API; everything that writes into it (Samsung Health, Google Fit, Fitbit since 2024, Withings, Oura, MyFitnessPal, …) is readable through this module on Android. See the [Android support matrix](#-android-support-matrix) below.
 
 ## ✨ Features
 
@@ -26,7 +26,7 @@ A high-performance React Native library exposing **a single TypeScript API on to
 - 🤖 **Android Native**: Pure Kotlin implementation on top of `androidx.health.connect:connect-client`
 - ✍️  **Writes**: `writeQuantityData` / `writeCategoryData` (insert manual samples)
 - 👀 **Observers**: `observeQuantityChanges` / `observeCategoryChanges`
-- 🌙 **Background sync**: register a periodic WorkManager job that POSTs deltas to your backend, even when the app is killed
+- 🌙 **Background sync**: register a periodic background job (Android WorkManager / iOS `BGTaskScheduler`) that POSTs deltas to your backend
 - 🎯 **Type-safe**: Full TypeScript support
 - ⚡ **Promise-based**: Modern async/await API
 
@@ -40,6 +40,8 @@ yarn add react-native-nitro-healthkit
 
 ### iOS Setup
 
+> **Minimum iOS deployment target: 14.0.**
+
 1. **Install pods:**
    ```bash
    cd example/my-app/ios && pod install
@@ -50,7 +52,7 @@ yarn add react-native-nitro-healthkit
    - Select your target → Signing & Capabilities
    - Click "+ Capability" and add "HealthKit"
 
-3. **Add privacy descriptions to `Info.plist`:**
+3. **Add privacy descriptions to `Info.plist`** (`NSHealthShareUsageDescription` is required to read; `NSHealthUpdateUsageDescription` is required only if you call `writeQuantityData` / `writeCategoryData`):
    ```xml
    <key>NSHealthShareUsageDescription</key>
    <string>We need access to your health data to track your activity</string>
@@ -58,12 +60,47 @@ yarn add react-native-nitro-healthkit
    <string>We need access to your health data to track your activity</string>
    ```
 
-4. **Ensure entitlements are set:**
-   Your `*.entitlements` file should contain:
+4. **Ensure entitlements are set.** Your `*.entitlements` file should contain:
    ```xml
    <key>com.apple.developer.healthkit</key>
    <true/>
    ```
+   For `observeQuantityChanges` / `observeCategoryChanges` to fire while the app is backgrounded, also add the background-delivery entitlement:
+   ```xml
+   <key>com.apple.developer.healthkit.background-delivery</key>
+   <true/>
+   ```
+
+5. **Background sync only** (skip if you don't call `registerBackgroundSync`). iOS requires the background-task handler to be registered *at launch*, before `application(_:didFinishLaunchingWithOptions:)` returns:
+
+   - Declare the task identifier and background modes in `Info.plist`:
+     ```xml
+     <key>BGTaskSchedulerPermittedIdentifiers</key>
+     <array>
+       <string>com.nitrohealthkit.sync</string>
+     </array>
+     <key>UIBackgroundModes</key>
+     <array>
+       <string>fetch</string>
+       <string>processing</string>
+     </array>
+     ```
+   - Register the launch handler from your `AppDelegate`:
+     ```swift
+     import NitroHealthkit // Swift
+
+     func application(_ application: UIApplication,
+                      didFinishLaunchingWithOptions launchOptions: ...) -> Bool {
+       HealthKitBackgroundSync.registerLaunchHandler()
+       // ...
+     }
+     ```
+     ```objc
+     // Objective-C AppDelegate
+     #import <NitroHealthkit/NitroHealthkit-Swift.h>
+     [HealthKitBackgroundSync registerLaunchHandler];
+     ```
+   iOS decides when to actually run the task — `intervalMinutes` is a lower bound, not a guarantee.
 
 ### Android Setup
 
@@ -298,11 +335,16 @@ const data = await HealthKitModule.getHealthData(
 interface HealthData {
   steps?: number;           // Total steps count
   heartRate?: number;       // Average heart rate (BPM)
-  activeEnergy?: number;    // Active energy burned (kcal) - Coming soon
-  distance?: number;        // Distance traveled (meters) - Coming soon
-  sleepAnalysis?: string;   // Sleep data - Coming soon
+  activeEnergy?: number;    // Active energy burned (kcal)
+  distance?: number;        // Distance traveled (meters)
+  sleepAnalysis?: string;   // Sleep summary
 }
 ```
+
+> `getHealthData` currently populates `steps` and `heartRate`; the other fields are reserved on the
+> interface. To read active energy, distance or sleep today, use `getAggregatedQuantity` /
+> `getQuantityData` (e.g. `ACTIVE_ENERGY_BURNED`, `DISTANCE_WALKING_RUNNING`) and `getCategoryData`
+> (`SLEEP_ANALYSIS`).
 
 ## 🔍 Error Handling
 
@@ -337,8 +379,12 @@ packages/
 ├── ios/                                       # Swift HealthKit implementation
 │   ├── HealthKitModule.swift
 │   ├── CacheManager.swift
+│   ├── Observers/HealthKitObserverManager.swift   # HKObserverQuery + background delivery
+│   ├── BackgroundSync/                            # BGTaskScheduler + Keychain
+│   │   ├── HealthKitBackgroundSync.swift
+│   │   └── KeychainCredentialsStore.swift
 │   └── NitroHealthkitObjcBridge.swift
-├── android/                                   # Kotlin Health Connect implementation (2.2.0+)
+├── android/                                   # Kotlin Health Connect implementation
 │   ├── build.gradle
 │   └── src/main/kotlin/io/github/n0ku/nitrohealthkit/
 │       ├── HealthKitModule.kt                 # extends HybridHealthKitSpec
@@ -386,12 +432,12 @@ packages/
 
 > Reading an Apple-only type or a type Health Connect doesn't model returns `[]` (and `writeQuantityData` returns `false`) — the module never throws for unsupported types so cross-platform code keeps working.
 
-## 🌙 Background sync (Android)
+## 🌙 Background sync
 
 ```typescript
 import { HealthKitModule } from 'react-native-nitro-healthkit';
 
-// After login — the Kotlin worker pulls deltas every ~15 min and POSTs them.
+// After login — the native job pulls deltas periodically and POSTs them.
 await HealthKitModule.registerBackgroundSync({
   apiBaseUrl: 'https://api.example.com',
   jwtToken: '<user JWT>',
@@ -400,11 +446,24 @@ await HealthKitModule.registerBackgroundSync({
   syncPath: '/users/health-data',
 });
 
-// On logout — stops the worker AND wipes the encrypted credentials at rest.
+// On logout — stops the job AND wipes the stored credentials at rest.
 await HealthKitModule.unregisterBackgroundSync();
+
+// Optional: is a sync currently registered?
+const active = await HealthKitModule.isBackgroundSyncRegistered();
 ```
 
-The JWT and base URL are stored in `EncryptedSharedPreferences` (AES-256-GCM, MasterKey backed by the Android Keystore). The worker re-reads them at execution time, sends a `POST {syncPath}` with the new samples since the last successful changes token, and clears the credentials on a `401`/`403` response. On iOS this is a no-op for now — full parity via `BGTaskScheduler` is tracked separately.
+Both platforms `POST {apiBaseUrl}{syncPath}` with `Authorization: Bearer <jwt>` and a body of
+`{ source, syncedAt, entries: [{ type, samples: [...] }] }` containing the new samples since the last
+successful checkpoint, and clear the stored credentials on a `401`/`403` response.
+
+- **Android**: a WorkManager `PeriodicWorkRequest` (floor of 15 min). Credentials live in
+  `EncryptedSharedPreferences` (AES-256-GCM, MasterKey backed by the Android Keystore).
+- **iOS**: a `BGTaskScheduler` app-refresh task (identifier `com.nitrohealthkit.sync`). Credentials
+  live in the Keychain (`kSecAttrAccessibleAfterFirstUnlock`). Requires the one-time launch
+  registration and `Info.plist` entries described in [iOS Setup](#ios-setup) — without them the
+  call stores credentials but the OS never runs the task. iOS schedules opportunistically, so runs
+  are best-effort, not guaranteed at a fixed interval.
 
 ## 👀 Observers
 
@@ -419,9 +478,17 @@ const sub = await HealthKitModule.observeQuantityChanges(
 
 // later …
 await HealthKitModule.removeObserver(sub);
+
+// or drop every active subscription at once
+await HealthKitModule.removeAllObservers();
 ```
 
-Health Connect has no push channel, so the Kotlin side runs a 30-second polling coroutine per subscription. iOS will use `HKObserverQuery` once parity is shipped.
+The `token` passed to your callback is opaque and platform-specific (Health Connect's changes cursor
+on Android, a serialized `HKQueryAnchor` on iOS) — treat it as a "something changed" signal and
+re-fetch what you need. On **iOS**, observers use `HKObserverQuery` with background delivery (add the
+`com.apple.developer.healthkit.background-delivery` entitlement to keep them firing while
+backgrounded). On **Android**, Health Connect has no push channel, so the Kotlin side runs a
+30-second polling coroutine per subscription.
 
 ## 🧪 Testing
 

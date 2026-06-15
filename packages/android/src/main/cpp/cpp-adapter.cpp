@@ -1,7 +1,7 @@
 //
 // cpp-adapter.cpp
 //
-// Library entry point for libNitroPackages.so on Android.
+// Library entry point for libNitroHealthkit.so on Android.
 //
 // Two responsibilities:
 //   1. Implement JNI_OnLoad so fbjni / the Nitrogen-generated JNI bridges
@@ -23,7 +23,7 @@
 #include <NitroModules/JNISharedPtr.hpp>
 
 #include "JHybridHealthKitSpec.hpp"
-#include "NitroPackagesOnLoad.hpp"
+#include "NitroHealthkitOnLoad.hpp"
 
 using namespace facebook;
 using namespace margelo::nitro;

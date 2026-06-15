@@ -25,7 +25,7 @@ namespace margelo::nitro::healthkit {
    */
   struct JWorkoutDataPoint final: public jni::JavaClass<JWorkoutDataPoint> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/packages/WorkoutDataPoint;";
+    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/healthkit/WorkoutDataPoint;";
 
   public:
     /**

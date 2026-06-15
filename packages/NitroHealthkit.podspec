@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
   
-  s.platforms    = { :ios => "13.4" }
+  s.platforms    = { :ios => "14.0" }
   s.source       = { :git => "https://github.com/N0ku/react-native-nitro-healthkit.git", :tag => "#{s.version}" }
   
   s.source_files = [
@@ -18,8 +18,6 @@ Pod::Spec.new do |s|
     "ios/**/*.{swift}",
     # Autolinking/Registration (Objective-C++)
     "ios/**/*.{m,mm}",
-    # Implementation (C++ objects)
-    "cpp/**/*.{hpp,cpp}",
   ]
   
   s.frameworks = "HealthKit"

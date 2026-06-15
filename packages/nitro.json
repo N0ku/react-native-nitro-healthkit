@@ -8,9 +8,9 @@
   },
   "android": {
     "androidNamespace": [
-      "packages"
+      "healthkit"
     ],
-    "androidCxxLibName": "NitroPackages"
+    "androidCxxLibName": "NitroHealthkit"
   },
   "autolinking": {},
   "ignorePaths": [

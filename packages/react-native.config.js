@@ -5,8 +5,8 @@ module.exports = {
         podspecPath: './NitroHealthkit.podspec',
       },
       android: {
-        packageImportPath: 'import com.margelo.nitro.packages.NitroPackagesPackage;',
-        packageInstance: 'new NitroPackagesPackage()',
+        packageImportPath: 'import com.margelo.nitro.healthkit.NitroHealthkitPackage;',
+        packageInstance: 'new NitroHealthkitPackage()',
       },
     },
   },

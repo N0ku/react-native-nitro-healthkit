@@ -19,7 +19,7 @@ apply plugin: "kotlin-android"
 
 // Pull in the Nitrogen-generated Kotlin sources so the abstract spec is on the
 // compile classpath.
-apply from: "../nitrogen/generated/android/NitroPackages+autolinking.gradle"
+apply from: "../nitrogen/generated/android/NitroHealthkit+autolinking.gradle"
 
 def reactNativeArchitectures() {
   def value = rootProject.getProperties().get("reactNativeArchitectures")

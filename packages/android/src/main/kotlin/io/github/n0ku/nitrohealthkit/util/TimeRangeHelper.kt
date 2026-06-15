@@ -14,8 +14,8 @@ import java.time.temporal.TemporalAdjusters
  * (`today`, `this_week`, `last_30_days`, `custom`, ...), produces a concrete
  * [startInstant, endInstant) pair anchored on the device's default timezone.
  *
- * The values are kept identical to the [com.margelo.nitro.packages.HybridHealthKitSpec]
- * contract on the TS side (see [src/specs/Example.nitro.ts]: `enum TimeRange`).
+ * The values are kept identical to the [com.margelo.nitro.healthkit.HybridHealthKitSpec]
+ * contract on the TS side (see [src/specs/HealthKit.nitro.ts]: `enum TimeRange`).
  */
 object TimeRangeHelper {
 

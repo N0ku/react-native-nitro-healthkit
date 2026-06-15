@@ -21,7 +21,7 @@ namespace margelo::nitro::healthkit {
   class JHybridHealthKitSpec: public jni::HybridClass<JHybridHealthKitSpec, JHybridObject>,
                               public virtual HybridHealthKitSpec {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/packages/HybridHealthKitSpec;";
+    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/healthkit/HybridHealthKitSpec;";
     static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
     static void registerNatives();
 

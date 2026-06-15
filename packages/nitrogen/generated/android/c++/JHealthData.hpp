@@ -22,7 +22,7 @@ namespace margelo::nitro::healthkit {
    */
   struct JHealthData final: public jni::JavaClass<JHealthData> {
   public:
-    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/packages/HealthData;";
+    static auto constexpr kJavaDescriptor = "Lcom/margelo/nitro/healthkit/HealthData;";
 
   public:
     /**

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { HealthKit, CategoryDataPoint, HealthData } from './specs/Example.nitro'
-import { HealthKitQuantityType, HealthKitCategoryType, TimeRange } from './specs/Example.nitro'
+import type { HealthKit, CategoryDataPoint, HealthData } from './specs/HealthKit.nitro'
+import { HealthKitQuantityType, HealthKitCategoryType, TimeRange } from './specs/HealthKit.nitro'
 
 /** Local midnight of the given date, without mutating it. */
 function startOfDay(d: Date): Date {
