@@ -16,6 +16,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "expo": "~54.0.16",
+    "expo-build-properties": "~1.0.10",
     "expo-constants": "~18.0.9",
     "expo-font": "~14.0.9",
     "expo-haptics": "~15.0.7",
@@ -31,13 +32,13 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.4",
     "react-native-gesture-handler": "~2.28.0",
+    "react-native-nitro-healthkit": "file:../../packages",
     "react-native-nitro-modules": "^0.30.0",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.5.1",
-    "react-native-nitro-healthkit": "file:../../packages"
+    "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",

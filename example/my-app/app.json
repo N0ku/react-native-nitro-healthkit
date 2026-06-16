@@ -27,7 +27,14 @@
       "output": "static"
     },
     "plugins": [
-
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
