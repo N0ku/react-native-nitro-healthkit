@@ -149,8 +149,13 @@ object QuantityMapper {
      * Flatten a list of Health Connect records of arbitrary type into [QuantityDataPoint]
      * objects suitable to ship across the Nitro bridge.
      */
-    fun flatten(iosType: String, records: List<Record>): List<QuantityDataPoint> =
-        records.flatMap { record -> samplesFor(iosType, record) }
+    fun flatten(iosType: String, records: List<Record>): List<QuantityDataPoint> {
+        // Apple-only / unmapped types have no Health Connect record — never emit
+        // samples for them, even if a caller passes records of another type
+        // (`samplesFor` dispatches on the record class alone). Mirrors the documented
+        // contract: reading an unsupported type yields an empty list.
+        if (recordTypeFor(iosType) == null) return emptyList()
+        return records.flatMap { record -> samplesFor(iosType, record) }
             .map { sample ->
                 QuantityDataPoint(
                     value = sample.value,
@@ -160,6 +165,7 @@ object QuantityMapper {
                     metadata = sample.metadata,
                 )
             }
+    }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
     private fun samplesFor(iosType: String, record: Record): List<Sample> = when (record) {

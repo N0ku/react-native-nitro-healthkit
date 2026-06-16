@@ -89,7 +89,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-test-reports
+          # The library builds in packages/android/build (it's linked via file:),
+          # not under example/my-app/android — point at both so failures are visible.
           path: |
+            packages/android/build/reports/tests/
+            packages/android/build/test-results/
             example/my-app/android/**/build/reports/tests/
             example/my-app/android/**/build/test-results/
+          if-no-files-found: ignore
           retention-days: 14
