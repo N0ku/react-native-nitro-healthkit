@@ -71,6 +71,15 @@ jobs:
         working-directory: example/my-app
         run: npm ci
 
+      # The example is an Expo CNG app — its android/ project is generated, not
+      # committed (see example/my-app/.gitignore). Generate it so the library is
+      # autolinked as the `:react-native-nitro-healthkit` Gradle subproject.
+      - name: Prebuild example Android project
+        working-directory: example/my-app
+        run: npx expo prebuild --platform android --no-install
+        env:
+          EXPO_NO_TELEMETRY: "1"
+
       - name: Gradle :react-native-nitro-healthkit:test
         working-directory: example/my-app/android
         run: ./gradlew :react-native-nitro-healthkit:test --no-daemon
